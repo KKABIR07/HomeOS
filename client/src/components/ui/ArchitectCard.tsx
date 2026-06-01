@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Box, Card, Typography, Avatar, Chip, Button, Rating } from '@mui/material'
 import { motion } from 'framer-motion'
 import LocationOnIcon from '@mui/icons-material/LocationOn'

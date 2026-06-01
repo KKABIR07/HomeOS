@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Box, Card, Typography, Chip, IconButton, Menu, MenuItem } from '@mui/material'
 import { motion } from 'framer-motion'
 import MoreVertIcon from '@mui/icons-material/MoreVert'

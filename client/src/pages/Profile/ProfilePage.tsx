@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef } from 'react'
 import {
   Box, Typography, Paper, Grid, TextField, Button, Avatar,

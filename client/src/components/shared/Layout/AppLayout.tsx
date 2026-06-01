@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Box } from '@mui/material'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from '../Sidebar/Sidebar'

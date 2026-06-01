@@ -21,6 +21,21 @@ import InteriorStudioPage from '../pages/Interior/InteriorStudioPage'
 import MarketplacePage from '../pages/Marketplace/MarketplacePage'
 import ProfilePage from '../pages/Profile/ProfilePage'
 import AdminPage from '../pages/Admin/AdminPage'
+import SiteIntelligencePage from '../pages/SiteIntelligence/SiteIntelligencePage'
+import MaterialsDatabasePage from '../pages/Materials/MaterialsDatabasePage'
+import LandscapeDesignPage from '../pages/Landscape/LandscapeDesignPage'
+import ElectricalPlanningPage from '../pages/Electrical/ElectricalPlanningPage'
+import ConstructionManagerPage from '../pages/Construction/ConstructionManagerPage'
+import AIAssistantPage from '../pages/AIAssistant/AIAssistantPage'
+import PropertyIntelligencePage from '../pages/PropertyIntelligence/PropertyIntelligencePage'
+import ConstructionMonitorPage from '../pages/ConstructionMonitor/ConstructionMonitorPage'
+import CompliancePage from '../pages/Compliance/CompliancePage'
+import SimulationsPage from '../pages/Simulations/SimulationsPage'
+import HomeIntelligencePage from '../pages/HomeIntelligence/HomeIntelligencePage'
+import DesignToolsPage from '../pages/DesignTools/DesignToolsPage'
+import FinanceHubPage from '../pages/FinanceHub/FinanceHubPage'
+import CommunityPage from '../pages/Community/CommunityPage'
+import SmartHomePage from '../pages/SmartHome/SmartHomePage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore()
@@ -70,6 +85,21 @@ export default function AppRouter() {
           <Route path="/marketplace" element={<MarketplacePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+          <Route path="/site-intelligence" element={<SiteIntelligencePage />} />
+          <Route path="/materials" element={<MaterialsDatabasePage />} />
+          <Route path="/landscape" element={<LandscapeDesignPage />} />
+          <Route path="/electrical" element={<ElectricalPlanningPage />} />
+          <Route path="/construction" element={<ConstructionManagerPage />} />
+          <Route path="/ai-assistant" element={<AIAssistantPage />} />
+          <Route path="/property-intel" element={<PropertyIntelligencePage />} />
+          <Route path="/construction-monitor" element={<ConstructionMonitorPage />} />
+          <Route path="/compliance" element={<CompliancePage />} />
+          <Route path="/simulations" element={<SimulationsPage />} />
+          <Route path="/home-intel" element={<HomeIntelligencePage />} />
+          <Route path="/design-tools" element={<DesignToolsPage />} />
+          <Route path="/finance" element={<FinanceHubPage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/smart-home" element={<SmartHomePage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

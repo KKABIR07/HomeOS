@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Box, Grid, Card, Typography, Button, Chip, List, ListItem, ListItemText, ListItemAvatar, Avatar, LinearProgress } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'

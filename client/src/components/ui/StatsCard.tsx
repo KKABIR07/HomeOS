@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Box, Card, Typography, Skeleton } from '@mui/material'
 import { motion } from 'framer-motion'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'

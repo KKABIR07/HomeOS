@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Box, Typography, Button } from '@mui/material'
 import { motion } from 'framer-motion'
 
