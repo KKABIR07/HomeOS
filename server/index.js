@@ -21,6 +21,15 @@ const architectRoutes = require('./src/routes/architects');
 const costRoutes = require('./src/routes/costEstimate');
 const adminRoutes = require('./src/routes/admin');
 
+// ─── Allowed Origins ───────────────────────────────────────────────────────────
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:3000',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+];
+
 // ─── App Setup ─────────────────────────────────────────────────────────────────
 const app = express();
 const server = http.createServer(app);
@@ -28,7 +37,7 @@ const server = http.createServer(app);
 // ─── Socket.io ─────────────────────────────────────────────────────────────────
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -48,7 +57,13 @@ app.use(
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked: ${origin}`));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
