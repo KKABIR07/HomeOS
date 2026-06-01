@@ -89,7 +89,7 @@ export default function FloorPlanEditor() {
         .reduce((sum, e) => sum + ((e.width * e.height) / (GRID_SIZE * GRID_SIZE)), 0)
 
       const payload = {
-        project: projectId,
+        projectId,
         name: `${project?.projectName || 'Floor'} - Floor 1`,
         floor: 1,
         elements,
