@@ -8,6 +8,7 @@ try {
 }
 
 let openaiClient = null;
+let groqClient = null;
 
 const getClient = () => {
   if (!openaiClient && OpenAIClass && process.env.OPENAI_API_KEY) {
@@ -16,7 +17,18 @@ const getClient = () => {
   return openaiClient;
 };
 
+const getGroqClient = () => {
+  if (!groqClient && OpenAIClass && process.env.GROQ_API_KEY) {
+    groqClient = new OpenAIClass({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: 'https://api.groq.com/openai/v1',
+    });
+  }
+  return groqClient;
+};
+
 const hasApiKey = () => !!process.env.OPENAI_API_KEY;
+const hasGroqKey = () => !!process.env.GROQ_API_KEY;
 
 // ─── Mock Responses ────────────────────────────────────────────────────────────
 
@@ -403,11 +415,85 @@ Return ONLY valid JSON.`;
   }
 };
 
+const generateProjectDescription = async (params) => {
+  const { projectName, houseStyle, location, plotWidth, plotLength, floors, budget, houseType } = params;
+
+  const prompt = `You are an expert architect and real estate consultant. Write a compelling, professional project description for a house design project with these details:
+- Project Name: ${projectName || 'Residential Project'}
+- Style: ${houseStyle || 'modern'}
+- Type: ${houseType || 'residential'}
+- Location: ${location || 'India'}
+- Plot Size: ${plotWidth && plotLength ? `${plotWidth}ft × ${plotLength}ft` : 'standard plot'}
+- Floors: ${floors || 1}
+- Budget: ${budget ? `₹${Number(budget).toLocaleString('en-IN')}` : 'standard budget'}
+
+Write a 3-4 sentence description that:
+1. Highlights the architectural style and vision
+2. Mentions key features and design philosophy
+3. Relates to the location and lifestyle
+4. Sounds professional but warm
+
+Return ONLY the description text, no labels or formatting.`;
+
+  const groq = getGroqClient();
+  if (groq) {
+    try {
+      const response = await groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 300,
+        temperature: 0.8,
+      });
+      return {
+        description: response.choices[0].message.content.trim(),
+        source: 'groq-llama3.3-70b',
+      };
+    } catch (err) {
+      console.error('Groq generateProjectDescription error:', err.message);
+    }
+  }
+
+  // Fallback — try OpenAI
+  const openai = getClient();
+  if (openai) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 300,
+        temperature: 0.8,
+      });
+      return {
+        description: response.choices[0].message.content.trim(),
+        source: 'openai-gpt4o',
+      };
+    } catch (err) {
+      console.error('OpenAI generateProjectDescription error:', err.message);
+    }
+  }
+
+  // Mock fallback
+  const styleDescriptions = {
+    modern: 'clean lines and contemporary aesthetics',
+    luxury: 'opulent finishes and premium materials',
+    contemporary: 'timeless elegance with current design trends',
+    traditional: 'classic architectural elements and warm character',
+    minimalist: 'purposeful simplicity and functional beauty',
+  };
+  const styleDesc = styleDescriptions[houseStyle] || 'thoughtful design and quality craftsmanship';
+  return {
+    description: `${projectName || 'This project'} is a beautifully conceived ${houseStyle || 'modern'} ${houseType || 'residential'} development that embodies ${styleDesc}. ${location ? `Ideally situated in ${location}, it` : 'The design'} harmonizes with its surroundings while delivering an exceptional living experience. ${floors > 1 ? `Spanning ${floors} floors, the` : 'The'} open-plan layout maximizes natural light and promotes fluid indoor-outdoor living. Every detail has been carefully considered to create a home that is both visually stunning and highly functional.`,
+    source: 'mock',
+  };
+};
+
 module.exports = {
   generateFloorPlan,
   estimateCost,
   architectChat,
   interiorDesign,
   vastuAnalysis,
+  generateProjectDescription,
   hasApiKey,
+  hasGroqKey,
 };

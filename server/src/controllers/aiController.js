@@ -182,10 +182,30 @@ const vastuAnalysis = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @desc    Generate project description using Groq llama-3.3-70b
+ * @route   POST /api/ai/generate-description
+ * @access  Private
+ */
+const generateDescription = asyncHandler(async (req, res) => {
+  const { projectName, houseStyle, location, plotWidth, plotLength, floors, budget, houseType } = req.body;
+
+  const result = await aiService.generateProjectDescription({
+    projectName, houseStyle, location,
+    plotWidth: Number(plotWidth) || 0,
+    plotLength: Number(plotLength) || 0,
+    floors: Number(floors) || 1,
+    budget, houseType,
+  });
+
+  res.status(200).json({ success: true, ...result });
+});
+
 module.exports = {
   generateFloorPlan,
   estimateCost,
   chat,
   interiorDesign,
   vastuAnalysis,
+  generateDescription,
 };
