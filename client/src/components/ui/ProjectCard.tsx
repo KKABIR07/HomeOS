@@ -103,7 +103,7 @@ export default function ProjectCard({ project, onEdit, onDelete, onDuplicate }: 
         </Box>
 
         {/* Completion Bar */}
-        {project.completionPercentage > 0 && (
+        {(project.completionPercentage ?? 0) > 0 && (
           <Box
             sx={{
               position: 'absolute',
@@ -117,7 +117,7 @@ export default function ProjectCard({ project, onEdit, onDelete, onDuplicate }: 
             <Box
               sx={{
                 height: '100%',
-                width: `${project.completionPercentage}%`,
+                width: `${project.completionPercentage ?? 0}%`,
                 background: 'linear-gradient(90deg, #6C63FF, #FF6584)',
               }}
             />

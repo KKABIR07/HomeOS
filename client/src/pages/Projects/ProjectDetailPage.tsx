@@ -145,12 +145,12 @@ export default function ProjectDetailPage() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>Progress</Typography>
                       <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 600 }}>
-                        {project.completionPercentage}%
+                        {project.completionPercentage ?? 0}%
                       </Typography>
                     </Box>
                     <LinearProgress
                       variant="determinate"
-                      value={project.completionPercentage}
+                      value={project.completionPercentage ?? 0}
                       sx={{
                         height: 8,
                         borderRadius: 4,

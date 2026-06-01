@@ -320,7 +320,7 @@ export default function DashboardPage() {
                       <Box sx={{ mt: 0.5 }}>
                         <LinearProgress
                           variant="determinate"
-                          value={project.completionPercentage}
+                          value={project.completionPercentage ?? 0}
                           sx={{
                             height: 4,
                             borderRadius: 2,
@@ -332,7 +332,7 @@ export default function DashboardPage() {
                           }}
                         />
                         <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.3, display: 'block' }}>
-                          {project.completionPercentage}% complete · {formatDate(project.updatedAt)}
+                          {project.completionPercentage ?? 0}% complete · {formatDate(project.updatedAt)}
                         </Typography>
                       </Box>
                     }
