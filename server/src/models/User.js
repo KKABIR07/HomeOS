@@ -125,7 +125,7 @@ userSchema.methods.addNotification = function (message, type = 'info', link = ''
 
 // Virtual for unread notification count
 userSchema.virtual('unreadNotificationsCount').get(function () {
-  return this.notifications.filter((n) => !n.read).length;
+  return (this.notifications || []).filter((n) => !n.read).length;
 });
 
 userSchema.set('toJSON', { virtuals: true });
