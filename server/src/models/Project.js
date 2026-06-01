@@ -53,7 +53,7 @@ const projectSchema = new mongoose.Schema(
     },
     houseStyle: {
       type: String,
-      enum: ['modern', 'luxury', 'contemporary', 'traditional', 'minimalist'],
+      enum: ['modern', 'luxury', 'contemporary', 'traditional', 'minimalist', 'industrial', 'mediterranean', 'colonial', 'craftsman'],
       default: 'modern',
     },
     description: {
