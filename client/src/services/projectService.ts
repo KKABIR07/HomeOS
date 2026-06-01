@@ -17,8 +17,15 @@ export const projectService = {
     search?: string
     sort?: string
   }): Promise<PaginatedResponse<Project>> {
-    const response = await api.get<PaginatedResponse<Project>>('/projects', { params })
-    return response.data
+    const response = await api.get('/projects', { params })
+    const { projects, total, page, pages } = response.data
+    return {
+      data: projects ?? [],
+      total: total ?? 0,
+      page: page ?? 1,
+      limit: params?.limit ?? 10,
+      totalPages: pages ?? 1,
+    }
   },
 
   async getProject(id: string): Promise<Project> {

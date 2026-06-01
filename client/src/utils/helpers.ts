@@ -72,12 +72,13 @@ export const debounce = <T extends (...args: any[]) => void>(
 
 export const getStatusColor = (status: string): string => {
   const colorMap: Record<string, string> = {
+    draft: '#9E9E9E',
+    active: '#4CAF50',
     planning: '#FF9800',
     in_progress: '#2196F3',
     review: '#9C27B0',
     completed: '#4CAF50',
     archived: '#607D8B',
-    active: '#4CAF50',
     inactive: '#F44336',
     cancelled: '#F44336',
     past_due: '#FF9800',
@@ -87,13 +88,15 @@ export const getStatusColor = (status: string): string => {
 
 export const getStatusLabel = (status: string): string => {
   const labelMap: Record<string, string> = {
+    draft: 'Draft',
+    active: 'Active',
     planning: 'Planning',
     in_progress: 'In Progress',
     review: 'Review',
     completed: 'Completed',
     archived: 'Archived',
   }
-  return labelMap[status] ?? status
+  return labelMap[status] ?? (status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown')
 }
 
 export const getRoomColor = (roomType: string): string => {

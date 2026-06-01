@@ -132,7 +132,7 @@ export default function ProjectCard({ project, onEdit, onDelete, onDuplicate }: 
           sx={{ fontWeight: 700, mb: 0.5, color: 'text.primary', lineHeight: 1.3 }}
           noWrap
         >
-          {project.title}
+          {project.projectName || project.title || 'Untitled Project'}
         </Typography>
         <Typography
           variant="body2"
@@ -153,29 +153,33 @@ export default function ProjectCard({ project, onEdit, onDelete, onDuplicate }: 
               </Typography>
             </Box>
           )}
-          {project.builtArea > 0 && (
+          {(project.plotWidth && project.plotLength) ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
               <SquareFootIcon sx={{ fontSize: 12, color: 'text.secondary' }} />
               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {formatArea(project.builtArea)}
+                {project.plotWidth}×{project.plotLength} ft
               </Typography>
             </Box>
-          )}
+          ) : null}
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <Chip
-              label={project.style}
-              size="small"
-              sx={{ height: 20, fontSize: '0.65rem', fontWeight: 500 }}
-            />
-            <Chip
-              label={`${project.floors}F`}
-              size="small"
-              variant="outlined"
-              sx={{ height: 20, fontSize: '0.65rem', fontWeight: 500 }}
-            />
+            {(project.houseStyle || project.style) && (
+              <Chip
+                label={project.houseStyle || project.style}
+                size="small"
+                sx={{ height: 20, fontSize: '0.65rem', fontWeight: 500 }}
+              />
+            )}
+            {project.floors && (
+              <Chip
+                label={`${project.floors}F`}
+                size="small"
+                variant="outlined"
+                sx={{ height: 20, fontSize: '0.65rem', fontWeight: 500 }}
+              />
+            )}
           </Box>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {formatRelativeDate(project.updatedAt)}
