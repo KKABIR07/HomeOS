@@ -28,7 +28,9 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
-];
+  'https://houseos-zeta.vercel.app',
+  'https://houseos-masum-s-projects-8391a272.vercel.app',
+].filter(Boolean);
 
 // ─── App Setup ─────────────────────────────────────────────────────────────────
 const app = express();
