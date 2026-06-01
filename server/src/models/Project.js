@@ -58,7 +58,7 @@ const projectSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      maxlength: [2000, 'Description cannot exceed 2000 characters'],
+      maxlength: [5000, 'Description cannot exceed 5000 characters'],
     },
     status: {
       type: String,
@@ -103,7 +103,6 @@ projectSchema.methods.generateShareToken = function () {
 
 // Indexes for common queries
 projectSchema.index({ owner: 1, status: 1 });
-projectSchema.index({ shareToken: 1 });
 projectSchema.index({ tags: 1 });
 projectSchema.index({ houseStyle: 1 });
 projectSchema.index({ createdAt: -1 });

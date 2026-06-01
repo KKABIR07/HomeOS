@@ -73,30 +73,39 @@ const createProject = asyncHandler(async (req, res, next) => {
     tags,
   } = req.body;
 
-  if (!projectName) {
+  if (!projectName || !String(projectName).trim()) {
     return next(new AppError('Project name is required', 400));
   }
 
-  const project = await Project.create({
-    owner: req.user._id,
-    projectName: projectName.trim(),
-    location: location?.trim(),
-    plotWidth: plotWidth ? Number(plotWidth) : undefined,
-    plotLength: plotLength ? Number(plotLength) : undefined,
-    budget: budget ? Number(budget) : undefined,
-    floors: floors ? Number(floors) : 1,
-    houseStyle: houseStyle || 'modern',
-    description: description?.trim(),
-    tags: tags || [],
-    status: 'draft',
-  });
+  const validStyles = ['modern', 'luxury', 'contemporary', 'traditional', 'minimalist', 'industrial', 'mediterranean', 'colonial', 'craftsman'];
+  const resolvedStyle = validStyles.includes(houseStyle) ? houseStyle : 'modern';
+  const resolvedFloors = Math.min(50, Math.max(1, Number(floors) || 1));
+  const resolvedPlotWidth = (plotWidth != null && !isNaN(Number(plotWidth))) ? Math.max(0, Number(plotWidth)) : undefined;
+  const resolvedPlotLength = (plotLength != null && !isNaN(Number(plotLength))) ? Math.max(0, Number(plotLength)) : undefined;
+  const resolvedBudget = (budget != null && !isNaN(Number(budget))) ? Math.max(0, Number(budget)) : undefined;
+  const resolvedDesc = description ? String(description).trim().slice(0, 4000) : undefined;
 
-  await project.populate('owner', 'name avatar email');
+  try {
+    const project = await Project.create({
+      owner: req.user._id,
+      projectName: String(projectName).trim(),
+      location: location ? String(location).trim() : undefined,
+      plotWidth: resolvedPlotWidth,
+      plotLength: resolvedPlotLength,
+      budget: resolvedBudget,
+      floors: resolvedFloors,
+      houseStyle: resolvedStyle,
+      description: resolvedDesc,
+      tags: Array.isArray(tags) ? tags : [],
+      status: 'draft',
+    });
 
-  res.status(201).json({
-    success: true,
-    project,
-  });
+    await project.populate('owner', 'name avatar email');
+    return res.status(201).json({ success: true, project });
+  } catch (dbErr) {
+    console.error('[createProject] DB error:', dbErr.name, '-', dbErr.message);
+    return next(dbErr);
+  }
 });
 
 /**
