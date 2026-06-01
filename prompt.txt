@@ -1,0 +1,404 @@
+HOUSEOS – AI-Powered House Architecture Builder
+
+Build a complete production-ready full-stack web application called HouseOS. The platform should allow users to design houses in 2D and 3D, generate AI-powered floor plans, estimate construction costs, visualize interiors, and collaborate with architects.
+
+Tech Stack
+Frontend
+React 19
+TypeScript
+Vite
+Material UI
+React Router
+React Three Fiber
+Three.js
+Zustand for state management
+React Query
+Backend
+Node.js
+Express.js
+MongoDB
+Mongoose
+JWT Authentication
+Cloudinary
+Socket.io
+AI Integration
+OpenAI API
+AI Floor Plan Generator
+AI Construction Cost Estimator
+AI Interior Designer Assistant
+AI House Design Chatbot
+Authentication System
+
+Implement:
+
+User Roles
+Homeowner
+Architect
+Builder
+Admin
+Features
+Register
+Login
+Forgot Password
+Email Verification
+Google Login
+Profile Management
+Avatar Upload
+Role-based Access Control
+Dashboard
+
+Create a professional dashboard.
+
+Dashboard Statistics
+
+Display:
+
+Total Projects
+Total Floor Plans
+Estimated Construction Value
+Saved Designs
+Recent Activities
+
+Include:
+
+Charts
+Project Timeline
+Notifications
+AI Recommendations
+Project Management
+
+Users can create unlimited projects.
+
+Project fields:
+
+{
+  "projectName": "",
+  "location": "",
+  "plotWidth": "",
+  "plotLength": "",
+  "budget": "",
+  "floors": "",
+  "houseStyle": "",
+  "description": ""
+}
+
+Features:
+
+Create Project
+Edit Project
+Delete Project
+Archive Project
+Share Project
+Advanced 2D Floor Plan Builder
+
+Create a drag-and-drop CAD-like editor.
+
+Features:
+
+Drawing Tools
+Wall Tool
+Door Tool
+Window Tool
+Column Tool
+Stair Tool
+Roof Tool
+Room Tools
+Bedroom
+Kitchen
+Bathroom
+Dining Room
+Living Room
+Garage
+Balcony
+Garden
+Editing
+Snap to Grid
+Resize
+Rotate
+Move
+Duplicate
+Undo
+Redo
+Measurements
+
+Automatically calculate:
+
+Room Area
+Wall Length
+Total Floor Area
+Carpet Area
+Real-Time 3D House Generator
+
+Convert any 2D floor plan into a realistic 3D model.
+
+Features:
+
+Exterior
+Modern House
+Luxury Villa
+Contemporary
+Traditional
+Minimalist
+Materials
+Brick
+Concrete
+Glass
+Wood
+Stone
+Roof Types
+Flat Roof
+Gable Roof
+Hip Roof
+Mansard Roof
+Camera Controls
+Orbit Controls
+Fly Through
+First Person Walkthrough
+Day/Night View
+AI House Generator
+
+Create an AI wizard.
+
+User inputs:
+
+Plot Size
+Number of Floors
+Bedrooms
+Bathrooms
+Parking Requirement
+Budget
+Design Style
+
+Example:
+
+"Generate a modern 3-bedroom house on a 1200 sq ft plot under ₹25 lakh."
+
+AI generates:
+
+Floor Plan
+Room Layout
+Area Distribution
+Exterior Design Suggestion
+Cost Estimate
+AI Architect Assistant
+
+Implement a chat assistant.
+
+Capabilities:
+
+House Design Advice
+Vastu Suggestions
+Material Recommendations
+Space Optimization
+Construction Planning
+Budget Optimization
+
+Support:
+
+Chat History
+Project Context Awareness
+Voice Input
+Construction Cost Estimator
+
+Automatically calculate:
+
+Materials
+Cement
+Bricks
+Sand
+Steel
+Tiles
+Paint
+Labor
+Mason
+Electrician
+Plumber
+Carpenter
+
+Generate:
+
+Detailed BOQ
+Cost Breakdown
+PDF Report
+Interior Design Studio
+
+Create drag-and-drop furniture placement.
+
+Furniture Categories:
+
+Living Room
+Sofa
+TV Unit
+Coffee Table
+Bedroom
+Bed
+Wardrobe
+Desk
+Kitchen
+Cabinets
+Refrigerator
+Sink
+Bathroom
+Toilet
+Sink
+Shower
+
+Features:
+
+Rotate Furniture
+Resize Furniture
+Material Change
+Lighting Adjustment
+Landscape Designer
+
+Allow users to add:
+
+Trees
+Plants
+Pathways
+Swimming Pools
+Fountains
+Parking Areas
+Construction Timeline Planner
+
+Generate:
+
+Phase 1
+
+Site Preparation
+
+Phase 2
+
+Foundation
+
+Phase 3
+
+Structure
+
+Phase 4
+
+Roofing
+
+Phase 5
+
+Electrical
+
+Phase 6
+
+Interior
+
+Phase 7
+
+Final Inspection
+
+Display:
+
+Gantt Chart
+Timeline View
+Milestones
+Architect Marketplace
+
+Architects can create profiles.
+
+Profile includes:
+
+Portfolio
+Ratings
+Reviews
+Certifications
+Pricing
+
+Users can:
+
+Hire Architects
+Request Quotes
+Schedule Meetings
+Chat in Real Time
+Collaboration System
+
+Features:
+
+Shared Projects
+Live Editing
+Team Permissions
+Project Comments
+Design Review Mode
+Export System
+
+Export:
+
+PDF
+PNG
+JPEG
+DWG
+DXF
+GLB
+OBJ
+
+Generate professional reports including:
+
+Floor Plans
+3D Views
+Material List
+Cost Estimate
+Admin Panel
+
+Admin can manage:
+
+Users
+Architects
+Projects
+Payments
+Reviews
+AI Usage
+
+Dashboard includes:
+
+Revenue Analytics
+User Analytics
+Growth Metrics
+Premium Subscription
+Free Plan
+3 Projects
+Basic Floor Plans
+Pro Plan
+Unlimited Projects
+AI House Generation
+HD Exports
+Enterprise Plan
+Team Collaboration
+Architect Marketplace Access
+Advanced Analytics
+UI Requirements
+
+Design a premium SaaS interface similar to:
+
+Modern architecture software
+Professional CAD tools
+Apple-level clean design
+
+Requirements:
+
+Dark Mode
+Light Mode
+Responsive Design
+Smooth Animations
+Glassmorphism Effects
+Professional Icons
+Modern Typography
+Deliverables
+
+Generate:
+
+Complete frontend code
+Complete backend code
+MongoDB schemas
+REST APIs
+Authentication system
+AI integrations
+Three.js 3D engine
+Dashboard
+Admin panel
+Deployment configuration for Vercel and Railway
+
+The code should be production-ready, scalable, modular, fully responsive, and follow industry best practices with proper folder structure, reusable components, error handling, validation, and documentation.
