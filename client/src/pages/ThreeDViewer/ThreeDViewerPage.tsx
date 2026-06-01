@@ -1,6 +1,6 @@
 import { Suspense, useRef, useState, useMemo, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber'
+import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber'
 import { OrbitControls, Grid } from '@react-three/drei'
 import * as THREE from 'three'
 import {
@@ -305,7 +305,7 @@ function HouseScene({ wallMat, roofType, floors, dayMode, showGrid, viewMode, ro
 
 // ─── Camera presets ───────────────────────────────────────────────────────────
 function CameraRig({ viewMode }: { viewMode: ViewMode }) {
-  const { camera } = require('@react-three/fiber').useThree()
+  const { camera } = useThree()
   const target = useMemo(() => {
     if (viewMode === 'topdown') return { pos: [0, 18, 0.01] as [number, number, number], look: [0, 0, 0] }
     if (viewMode === 'interior') return { pos: [0, 5, 8] as [number, number, number], look: [0, 2, 0] }
