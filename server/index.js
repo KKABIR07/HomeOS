@@ -32,6 +32,13 @@ const allowedOrigins = [
   'https://houseos-masum-s-projects-8391a272.vercel.app',
 ].filter(Boolean);
 
+// Also allow any *.railway.app and *.vercel.app origin dynamically
+const isDynamicOriginAllowed = (origin) =>
+  !origin ||
+  allowedOrigins.includes(origin) ||
+  /\.railway\.app$/.test(origin) ||
+  /\.vercel\.app$/.test(origin);
+
 // ─── App Setup ─────────────────────────────────────────────────────────────────
 const app = express();
 const server = http.createServer(app);
@@ -60,7 +67,7 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (isDynamicOriginAllowed(origin)) {
         callback(null, true);
       } else {
         callback(new Error(`CORS blocked: ${origin}`));
