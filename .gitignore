@@ -2,16 +2,26 @@
 node_modules/
 /.pnp
 .pnp.js
+jspm_packages/
+web_modules/
 
 # Build outputs
 dist/
 build/
-.next/
+out/
+.output
+.next
+.nuxt
+.svelte-kit/
+.vuepress/dist
+**/.vitepress/dist
+**/.vitepress/cache
+.docusaurus
 
 # Environment variables
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # Logs
 logs/
@@ -35,18 +45,56 @@ Desktop.ini
 *.njsproj
 *.sln
 *.sw?
+.vscode-test
 
 # Test coverage
 coverage/
+*.lcov
 .nyc_output
 
 # Cache
 .cache/
 .parcel-cache/
 .turbo/
+.eslintcache
+.stylelintcache
+.firebase/
+.fusebox/
+.serverless/
+.dynamodb/
+.grunt/
+.vite/
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
 
 # TypeScript
 *.tsbuildinfo
 
+# Package managers
+.npm
+.pnpm-store
+.yarn-integrity
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+*.tgz
+bower_components/
+lib-cov/
+
+# Runtime
+pids/
+*.pid
+*.seed
+*.pid.lock
+.node_repl_history
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+.lock-wscript
+build/Release
+
 # Misc
 *.local
+.tern-port
