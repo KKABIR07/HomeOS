@@ -38,6 +38,7 @@ import EventNoteIcon from '@mui/icons-material/EventNote'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import ConstructionIcon from '@mui/icons-material/Construction'
 import GridViewIcon from '@mui/icons-material/GridView'
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../../../store/authStore'
 import { useUIStore } from '../../../store/uiStore'
@@ -60,6 +61,7 @@ const GLOBAL_NAV = [
 const getProjectNav = (projectId: string) => [
   { label: 'Overview', path: `/projects/${projectId}`, icon: <DashboardIcon /> },
   { label: 'Design', path: `/projects/${projectId}/design`, icon: <DesignServicesIcon /> },
+  { label: '3D View', path: `/projects/${projectId}/3d`, icon: <ViewInArIcon /> },
   { label: 'Analysis', path: `/projects/${projectId}/analysis`, icon: <BarChartIcon /> },
   { label: 'Planning', path: `/projects/${projectId}/planning`, icon: <EventNoteIcon /> },
   { label: 'Management', path: `/projects/${projectId}/management`, icon: <ManageAccountsIcon /> },
