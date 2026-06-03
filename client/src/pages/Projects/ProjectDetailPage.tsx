@@ -13,15 +13,22 @@ import SquareFootIcon from '@mui/icons-material/SquareFoot'
 import BedIcon from '@mui/icons-material/Bed'
 import BathtubIcon from '@mui/icons-material/Bathtub'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useProject } from '../../hooks/useProjects'
 import { formatCurrency, formatArea, getStatusColor, getStatusLabel, formatDate } from '../../utils/helpers'
+import { useProjectStore } from '../../store/projectStore'
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [tab, setTab] = useState(0)
   const { data: project, isLoading } = useProject(id ?? '')
+  const { setCurrentProject } = useProjectStore()
+
+  useEffect(() => {
+    if (project) setCurrentProject(project)
+    return () => setCurrentProject(null)
+  }, [project, setCurrentProject])
 
   if (isLoading) {
     return (

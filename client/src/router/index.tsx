@@ -79,6 +79,17 @@ export default function AppRouter() {
           <Route path="/projects/:id/edit" element={<CreateProjectPage />} />
           <Route path="/projects/:id/floorplan" element={<FloorPlanEditor />} />
           <Route path="/projects/:id/3d" element={<ThreeDViewerPage />} />
+          {/* Project workspace routes */}
+          <Route path="/projects/:id/design" element={<FloorPlanEditor />} />
+          <Route path="/projects/:id/analysis" element={<SiteIntelligencePage />} />
+          <Route path="/projects/:id/planning" element={<LandscapeDesignPage />} />
+          <Route path="/projects/:id/management" element={<ConstructionManagerPage />} />
+          <Route path="/projects/:id/property" element={<PropertyIntelligencePage />} />
+          <Route path="/projects/:id/construction" element={<ConstructionMonitorPage />} />
+          <Route path="/projects/:id/simulations" element={<SimulationsPage />} />
+          <Route path="/projects/:id/home-ai" element={<HomeIntelligencePage />} />
+          <Route path="/projects/:id/design-plus" element={<DesignToolsPage />} />
+          <Route path="/projects/:id/finance" element={<FinanceHubPage />} />
           <Route path="/ai-designer" element={<AIDesignerPage />} />
           <Route path="/cost-estimator" element={<CostEstimatorPage />} />
           <Route path="/interior-studio" element={<InteriorStudioPage />} />
