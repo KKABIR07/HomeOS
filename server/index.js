@@ -287,7 +287,10 @@ server.listen(PORT, () => {
 // ─── Process Error Handlers ─────────────────────────────────────────────────────
 process.on('unhandledRejection', (err) => {
   console.error('[UNHANDLED REJECTION]', err.name, err.message);
-  server.close(() => process.exit(1));
+  // Only exit in development — in production, log and keep running
+  if (process.env.NODE_ENV !== 'production') {
+    server.close(() => process.exit(1));
+  }
 });
 
 process.on('uncaughtException', (err) => {

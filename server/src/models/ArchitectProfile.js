@@ -88,7 +88,6 @@ const architectProfileSchema = new mongoose.Schema(
   }
 );
 
-architectProfileSchema.index({ user: 1 });
 architectProfileSchema.index({ rating: -1 });
 architectProfileSchema.index({ availability: 1 });
 architectProfileSchema.index({ isVerified: 1 });

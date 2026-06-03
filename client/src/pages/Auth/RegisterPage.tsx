@@ -145,6 +145,7 @@ export default function RegisterPage() {
           error={!!errors.password}
           helperText={errors.password}
           fullWidth
+          inputProps={{ autoComplete: 'new-password' }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -169,6 +170,7 @@ export default function RegisterPage() {
           error={!!errors.confirmPassword}
           helperText={errors.confirmPassword}
           fullWidth
+          inputProps={{ autoComplete: 'new-password' }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
