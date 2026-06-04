@@ -88,6 +88,11 @@ const projectSchema = new mongoose.Schema(
       default: 0,
     },
     likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    boundary: {
+      corners: { type: [[Number]], default: [] },
+      area: { type: Number, default: 0 },
+      perimeter: { type: Number, default: 0 },
+    },
   },
   {
     timestamps: true,

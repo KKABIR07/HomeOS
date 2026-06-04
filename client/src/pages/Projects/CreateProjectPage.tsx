@@ -3,7 +3,7 @@ import { useState } from 'react'
 import {
   Box, Card, Grid, Typography, TextField, Button, MenuItem,
   Select, FormControl, InputLabel, Slider, Stepper, Step, StepLabel,
-  InputAdornment, CircularProgress, Tooltip, IconButton,
+  InputAdornment, CircularProgress, Tooltip, IconButton, Alert,
 } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
@@ -12,12 +12,14 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import CheckIcon from '@mui/icons-material/Check'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import MyLocationIcon from '@mui/icons-material/MyLocation'
+import SquareFootIcon from '@mui/icons-material/SquareFoot'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import api from '../../services/api'
 import type { DesignStyle, HouseType } from '../../types/project'
+import PropertyBoundaryMap, { type BoundaryData } from '../../components/ui/PropertyBoundaryMap'
 
-const steps = ['Basic Info', 'Design Details', 'Specifications']
+const steps = ['Basic Info', 'Design Details', 'Property Boundary', 'Specifications']
 
 const styles: { value: DesignStyle; label: string }[] = [
   { value: 'modern', label: 'Modern' },
@@ -65,13 +67,14 @@ export default function CreateProjectPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const [aiDescLoading, setAiDescLoading] = useState(false)
   const [locationLoading, setLocationLoading] = useState(false)
+  const [boundary, setBoundary] = useState<BoundaryData | null>(null)
+  const [geoCenter, setGeoCenter] = useState<[number, number] | undefined>(undefined)
 
   const set = <K extends keyof FormState>(field: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }))
   }
 
-  // ── AI generate description via Groq llama-3.3-70b ──────────────────────────
   const handleAIDescription = async () => {
     setAiDescLoading(true)
     try {
@@ -94,19 +97,15 @@ export default function CreateProjectPage() {
     }
   }
 
-  // ── Auto-detect location via browser geolocation + Nominatim ────────────────
   const handleAutoLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser')
-      return
-    }
+    if (!navigator.geolocation) { toast.error('Geolocation not supported'); return }
     setLocationLoading(true)
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         try {
           const { latitude, longitude } = pos.coords
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
             { headers: { 'Accept-Language': 'en' } }
           )
           const data = await res.json()
@@ -114,27 +113,34 @@ export default function CreateProjectPage() {
           const city = addr.city || addr.town || addr.village || addr.county || ''
           const state = addr.state || ''
           const country = addr.country || ''
-          const location = [city, state, country].filter(Boolean).join(', ')
-          set('location', location)
-          toast.success(`Location detected: ${location}`)
+          set('location', [city, state, country].filter(Boolean).join(', '))
+          toast.success('Location detected')
         } catch {
           toast.error('Could not fetch location name')
         } finally {
           setLocationLoading(false)
         }
       },
-      (err) => {
-        setLocationLoading(false)
-        if (err.code === 1) toast.error('Location permission denied. Please allow access.')
-        else toast.error('Could not detect location')
-      },
+      () => { setLocationLoading(false); toast.error('Location permission denied') },
       { timeout: 10000 }
     )
   }
 
+  // When entering boundary step, try to get GPS centre for the map
+  const handleEnterBoundaryStep = () => {
+    if (geoCenter) return
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setGeoCenter([pos.coords.latitude, pos.coords.longitude]),
+        () => {},
+        { timeout: 8000 }
+      )
+    }
+  }
+
   const createMutation = useMutation({
     mutationFn: async () => {
-      const res = await api.post('/projects', {
+      const payload: any = {
         projectName: form.projectName,
         description: form.description,
         houseStyle: form.style,
@@ -143,7 +149,9 @@ export default function CreateProjectPage() {
         plotLength: form.plotLength,
         floors: form.floors,
         budget: form.budget,
-      })
+      }
+      if (boundary) payload.boundary = boundary
+      const res = await api.post('/projects', payload)
       return res.data.project
     },
     onSuccess: (project) => {
@@ -151,29 +159,28 @@ export default function CreateProjectPage() {
       toast.success('Project created!')
       navigate(`/projects/${project._id}`)
     },
-    onError: (err: { response?: { data?: { message?: string } } }) => {
-      toast.error(err.response?.data?.message || 'Failed to create project')
-    },
+    onError: (err: any) => toast.error(err.response?.data?.message || 'Failed to create project'),
   })
 
   const validateStep = () => {
     const errs: typeof errors = {}
-    if (activeStep === 0) {
-      if (!form.projectName.trim()) errs.projectName = 'Project name is required'
-    }
-    if (activeStep === 1) {
-      if (!form.location.trim()) errs.location = 'Location is required'
-    }
+    if (activeStep === 0 && !form.projectName.trim()) errs.projectName = 'Project name is required'
+    if (activeStep === 1 && !form.location.trim()) errs.location = 'Location is required'
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
 
-  const handleNext = () => { if (validateStep()) setActiveStep((p) => p + 1) }
+  const handleNext = () => {
+    if (!validateStep()) return
+    if (activeStep === 1) handleEnterBoundaryStep()
+    setActiveStep((p) => p + 1)
+  }
   const handleBack = () => setActiveStep((p) => p - 1)
   const handleSubmit = () => { if (validateStep()) createMutation.mutate() }
 
   return (
-    <Box component={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} sx={{ maxWidth: 720, mx: 'auto' }}>
+    <Box component={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+      sx={{ maxWidth: activeStep === 2 ? 900 : 720, mx: 'auto', transition: 'max-width 0.3s' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
         <Button startIcon={<ArrowBackIcon />} variant="text" sx={{ color: 'text.secondary' }} onClick={() => navigate('/projects')}>
           Back
@@ -192,49 +199,28 @@ export default function CreateProjectPage() {
       </Stepper>
 
       <Card sx={{ p: 4 }}>
+
         {/* ── Step 0: Basic Info ── */}
         {activeStep === 0 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Project Information</Typography>
-
-            <TextField
-              label="Project Name *"
-              value={form.projectName}
+            <TextField label="Project Name *" value={form.projectName}
               onChange={(e) => set('projectName', e.target.value)}
-              error={!!errors.projectName}
-              helperText={errors.projectName}
-              fullWidth
-              placeholder="e.g. Modern Family Villa"
-            />
-
+              error={!!errors.projectName} helperText={errors.projectName}
+              fullWidth placeholder="e.g. Modern Family Villa" />
             <Box>
-              <TextField
-                label="Description"
-                value={form.description}
+              <TextField label="Description" value={form.description}
                 onChange={(e) => set('description', e.target.value)}
-                fullWidth
-                multiline
-                rows={4}
-                placeholder="Describe your project vision... or click AI Generate below"
-                sx={{ mb: 1 }}
-              />
-              <Button
-                size="small"
-                variant="outlined"
-                color="primary"
+                fullWidth multiline rows={4}
+                placeholder="Describe your project vision… or click AI Generate"
+                sx={{ mb: 1 }} />
+              <Button size="small" variant="outlined" color="primary"
                 startIcon={aiDescLoading ? <CircularProgress size={14} color="inherit" /> : <AutoAwesomeIcon />}
-                onClick={handleAIDescription}
-                disabled={aiDescLoading}
-                sx={{
-                  borderStyle: 'dashed',
-                  fontSize: '0.75rem',
-                  '&:hover': { background: 'rgba(108,99,255,0.08)' },
-                }}
-              >
-                {aiDescLoading ? 'Generating with Groq Llama 3.3…' : 'AI Generate Description'}
+                onClick={handleAIDescription} disabled={aiDescLoading}
+                sx={{ borderStyle: 'dashed', fontSize: '0.75rem' }}>
+                {aiDescLoading ? 'Generating…' : 'AI Generate Description'}
               </Button>
             </Box>
-
             <FormControl fullWidth>
               <InputLabel>House Type</InputLabel>
               <Select value={form.houseType} label="House Type" onChange={(e) => set('houseType', e.target.value as HouseType)}>
@@ -248,83 +234,77 @@ export default function CreateProjectPage() {
         {activeStep === 1 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Design Details</Typography>
-
             <FormControl fullWidth>
               <InputLabel>Architectural Style</InputLabel>
               <Select value={form.style} label="Architectural Style" onChange={(e) => set('style', e.target.value as DesignStyle)}>
                 {styles.map((s) => <MenuItem key={s.value} value={s.value}>{s.label}</MenuItem>)}
               </Select>
             </FormControl>
-
-            <TextField
-              label="Location *"
-              value={form.location}
+            <TextField label="Location *" value={form.location}
               onChange={(e) => set('location', e.target.value)}
-              error={!!errors.location}
-              helperText={errors.location || 'City, State or Address'}
-              fullWidth
-              placeholder="e.g. Mumbai, Maharashtra"
+              error={!!errors.location} helperText={errors.location || 'City, State or Address'}
+              fullWidth placeholder="e.g. Mumbai, Maharashtra"
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <Tooltip title="Auto-detect my location">
-                      <IconButton
-                        size="small"
-                        onClick={handleAutoLocation}
-                        disabled={locationLoading}
-                        color="primary"
-                      >
-                        {locationLoading
-                          ? <CircularProgress size={18} color="inherit" />
-                          : <MyLocationIcon fontSize="small" />}
+                      <IconButton size="small" onClick={handleAutoLocation} disabled={locationLoading} color="primary">
+                        {locationLoading ? <CircularProgress size={18} color="inherit" /> : <MyLocationIcon fontSize="small" />}
                       </IconButton>
                     </Tooltip>
                   </InputAdornment>
                 ),
-              }}
-            />
-
+              }} />
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <TextField
-                  label="Plot Width (ft)"
-                  type="number"
-                  value={form.plotWidth}
+                <TextField label="Plot Width (ft)" type="number" value={form.plotWidth}
                   onChange={(e) => set('plotWidth', Number(e.target.value))}
-                  fullWidth
-                  inputProps={{ min: 10 }}
-                />
+                  fullWidth inputProps={{ min: 10 }} />
               </Grid>
               <Grid item xs={6}>
-                <TextField
-                  label="Plot Length (ft)"
-                  type="number"
-                  value={form.plotLength}
+                <TextField label="Plot Length (ft)" type="number" value={form.plotLength}
                   onChange={(e) => set('plotLength', Number(e.target.value))}
-                  fullWidth
-                  inputProps={{ min: 10 }}
-                />
+                  fullWidth inputProps={{ min: 10 }} />
               </Grid>
             </Grid>
-
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Number of Floors: {form.floors}</Typography>
-              <Slider
-                value={form.floors}
-                onChange={(_, v) => set('floors', v as number)}
+              <Slider value={form.floors} onChange={(_, v) => set('floors', v as number)}
                 min={1} max={5} step={1}
                 marks={[1, 2, 3, 4, 5].map((v) => ({ value: v, label: String(v) }))}
-                sx={{ color: 'primary.main' }}
-              />
+                sx={{ color: 'primary.main' }} />
             </Box>
           </Box>
         )}
 
-        {/* ── Step 2: Specifications ── */}
+        {/* ── Step 2: Property Boundary ── */}
         {activeStep === 2 && (
+          <Box>
+            <Box sx={{ mb: 2.5 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>Property Boundary</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Click on the map to mark the corners of your property. The area and perimeter will calculate automatically.
+                This step is optional — you can skip it.
+              </Typography>
+            </Box>
+
+            {boundary && (
+              <Alert severity="success" icon={<SquareFootIcon />} sx={{ mb: 2 }}>
+                <strong>Boundary saved:</strong> Area {(boundary.area).toFixed(1)} m²  ·  Perimeter {boundary.perimeter.toFixed(1)} m  ·  {boundary.corners.length} corners
+              </Alert>
+            )}
+
+            <PropertyBoundaryMap
+              defaultCenter={geoCenter}
+              onChange={setBoundary}
+            />
+          </Box>
+        )}
+
+        {/* ── Step 3: Specifications ── */}
+        {activeStep === 3 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Specifications</Typography>
-
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Box>
@@ -339,26 +319,21 @@ export default function CreateProjectPage() {
                 </Box>
               </Grid>
             </Grid>
-
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
                 Plot Area: {(form.plotWidth * form.plotLength).toLocaleString()} sq ft ({form.plotWidth}ft × {form.plotLength}ft)
+                {boundary ? ` · Mapped: ${boundary.area.toFixed(1)} m²` : ''}
               </Typography>
             </Box>
-
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
                 Budget: ₹{form.budget.toLocaleString('en-IN')}
               </Typography>
-              <Slider
-                value={form.budget}
-                onChange={(_, v) => set('budget', v as number)}
-                min={500000} max={50000000} step={100000}
-                sx={{ color: 'primary.main' }}
-              />
+              <Slider value={form.budget} onChange={(_, v) => set('budget', v as number)}
+                min={500000} max={50000000} step={100000} sx={{ color: 'primary.main' }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>₹5 Lakh</Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>₹5 Crore</Typography>
+                <Typography variant="caption" color="text.secondary">₹5 Lakh</Typography>
+                <Typography variant="caption" color="text.secondary">₹5 Crore</Typography>
               </Box>
             </Box>
 
@@ -373,6 +348,10 @@ export default function CreateProjectPage() {
                   { label: 'Plot', value: `${form.plotWidth}×${form.plotLength} ft` },
                   { label: 'Floors', value: form.floors },
                   { label: 'Budget', value: `₹${form.budget.toLocaleString('en-IN')}` },
+                  ...(boundary ? [
+                    { label: 'Mapped Area', value: `${boundary.area.toFixed(1)} m²` },
+                    { label: 'Perimeter', value: `${boundary.perimeter.toFixed(1)} m` },
+                  ] : []),
                 ].map((item) => (
                   <Grid item xs={6} key={item.label}>
                     <Typography variant="caption" color="text.secondary">{item.label}</Typography>
@@ -386,27 +365,36 @@ export default function CreateProjectPage() {
 
         {/* ── Navigation ── */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
-          <Button
-            variant="outlined"
+          <Button variant="outlined"
             onClick={activeStep === 0 ? () => navigate('/projects') : handleBack}
             startIcon={activeStep > 0 ? <ArrowBackIcon /> : undefined}
-            sx={{ color: 'text.secondary', borderColor: 'divider' }}
-          >
+            sx={{ color: 'text.secondary', borderColor: 'divider' }}>
             {activeStep === 0 ? 'Cancel' : 'Back'}
           </Button>
 
-          {activeStep < steps.length - 1 ? (
-            <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={handleNext}
-              sx={{ background: 'linear-gradient(135deg, #6C63FF, #8B85FF)' }}>
-              Next
-            </Button>
-          ) : (
-            <Button variant="contained" endIcon={createMutation.isPending ? <CircularProgress size={16} color="inherit" /> : <CheckIcon />}
-              onClick={handleSubmit} disabled={createMutation.isPending}
-              sx={{ background: 'linear-gradient(135deg, #6C63FF, #8B85FF)' }}>
-              {createMutation.isPending ? 'Creating…' : 'Create Project'}
-            </Button>
-          )}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {/* Skip button only on boundary step */}
+            {activeStep === 2 && (
+              <Button variant="text" sx={{ color: 'text.secondary' }}
+                onClick={() => { setBoundary(null); setActiveStep(3) }}>
+                Skip
+              </Button>
+            )}
+
+            {activeStep < steps.length - 1 ? (
+              <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={handleNext}
+                sx={{ background: 'linear-gradient(135deg, #6C63FF, #8B85FF)' }}>
+                {activeStep === 2 ? (boundary ? 'Save & Continue' : 'Continue without boundary') : 'Next'}
+              </Button>
+            ) : (
+              <Button variant="contained"
+                endIcon={createMutation.isPending ? <CircularProgress size={16} color="inherit" /> : <CheckIcon />}
+                onClick={handleSubmit} disabled={createMutation.isPending}
+                sx={{ background: 'linear-gradient(135deg, #6C63FF, #8B85FF)' }}>
+                {createMutation.isPending ? 'Creating…' : 'Create Project'}
+              </Button>
+            )}
+          </Box>
         </Box>
       </Card>
     </Box>

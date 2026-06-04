@@ -71,6 +71,7 @@ const createProject = asyncHandler(async (req, res, next) => {
     houseStyle,
     description,
     tags,
+    boundary,
   } = req.body;
 
   if (!projectName || !String(projectName).trim()) {
@@ -98,6 +99,13 @@ const createProject = asyncHandler(async (req, res, next) => {
       description: resolvedDesc,
       tags: Array.isArray(tags) ? tags : [],
       status: 'draft',
+      ...(boundary?.corners?.length >= 3 && {
+        boundary: {
+          corners: boundary.corners,
+          area: Number(boundary.area) || 0,
+          perimeter: Number(boundary.perimeter) || 0,
+        },
+      }),
     });
 
     await project.populate('owner', 'name avatar email');
@@ -173,6 +181,14 @@ const updateProject = asyncHandler(async (req, res, next) => {
     if (req.body[field] !== undefined) {
       updateData[field] = req.body[field];
     }
+  }
+
+  if (req.body.boundary?.corners?.length >= 3) {
+    updateData.boundary = {
+      corners: req.body.boundary.corners,
+      area: Number(req.body.boundary.area) || 0,
+      perimeter: Number(req.body.boundary.perimeter) || 0,
+    };
   }
 
   project = await Project.findByIdAndUpdate(req.params.id, updateData, {
