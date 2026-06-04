@@ -96,7 +96,21 @@ export default function PropertyIntelligencePage() {
             <Grid item xs={12} md={6}>
               <Card sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2 }}>Property Specifications</Typography>
-                {[['Project Name', project.projectName || project.title], ['Style', project.style || '–'], ['Floors', project.floors || '–'], ['Bedrooms', project.bedrooms || '–'], ['Bathrooms', project.bathrooms || '–'], ['Plot Area', project.plotArea ? `${project.plotArea} m²` : '–'], ['Built Area', project.builtArea ? `${project.builtArea} m²` : '–'], ['Status', project.status || '–']].map(([k, v]) => (
+                {[
+                  ['Project Name', project.projectName || project.title],
+                  ['Style', project.style || '–'],
+                  ['Floors', project.floors || '–'],
+                  ['Bedrooms', project.bedrooms || '–'],
+                  ['Bathrooms', project.bathrooms || '–'],
+                  ['Plot Area', project.boundary?.area
+                    ? `${project.boundary.area.toFixed(1)} m² (mapped)`
+                    : (project.plotWidth && project.plotLength)
+                      ? `${(project.plotWidth * project.plotLength * 0.0929).toFixed(1)} m²`
+                      : '–'],
+                  ['Built Area', project.builtArea ? `${project.builtArea} m²` : '–'],
+                  ['Perimeter', project.boundary?.perimeter ? `${project.boundary.perimeter.toFixed(1)} m` : '–'],
+                  ['Status', project.status || '–'],
+                ].map(([k, v]) => (
                   <Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.6, borderBottom: '1px solid', borderColor: 'divider' }}>
                     <Typography variant="body2" color="text.secondary">{k}</Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>{v}</Typography>
@@ -131,10 +145,31 @@ export default function PropertyIntelligencePage() {
           {project.location && geoLoading && <Loader msg={`Locating "${project.location}"…`} />}
           {geo && (
             <>
-              <Alert severity="success" sx={{ mb: 2 }}><strong>Located:</strong> {geo.displayName}</Alert>
-              <ProjectMap lat={geo.lat} lng={geo.lng} label={project.projectName || project.title} height={400} />
+              <Alert severity="success" sx={{ mb: 2 }}>
+                <strong>Located:</strong> {geo.displayName}
+                {project.boundary?.corners?.length >= 3 && (
+                  <span style={{ marginLeft: 12 }}>· <strong>Boundary mapped</strong></span>
+                )}
+              </Alert>
+              <ProjectMap
+                lat={geo.lat}
+                lng={geo.lng}
+                label={project.projectName || project.title}
+                height={420}
+                boundary={project.boundary}
+                builtArea={project.builtArea}
+              />
               <Grid container spacing={2} sx={{ mt: 2 }}>
-                {[['Latitude', geo.lat.toFixed(5)], ['Longitude', geo.lng.toFixed(5)], ['Plot Area', project.plotArea ? `${project.plotArea} m²` : '–'], ['Built Area', project.builtArea ? `${project.builtArea} m²` : '–']].map(([k, v]) => (
+                {[
+                  ['Latitude', geo.lat.toFixed(5)],
+                  ['Longitude', geo.lng.toFixed(5)],
+                  ['Plot Area', project.boundary?.area
+                    ? `${project.boundary.area.toFixed(1)} m²`
+                    : (project.plotWidth && project.plotLength)
+                      ? `${(project.plotWidth * project.plotLength * 0.0929).toFixed(1)} m²`
+                      : '–'],
+                  ['Built Area', project.builtArea ? `${project.builtArea} m²` : '–'],
+                ].map(([k, v]) => (
                   <Grid item xs={6} md={3} key={k}>
                     <Card sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
                       <Typography variant="caption" color="text.secondary">{k}</Typography>

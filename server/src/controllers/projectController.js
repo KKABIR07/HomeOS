@@ -66,6 +66,7 @@ const createProject = asyncHandler(async (req, res, next) => {
     location,
     plotWidth,
     plotLength,
+    builtArea,
     budget,
     floors,
     houseStyle,
@@ -83,6 +84,7 @@ const createProject = asyncHandler(async (req, res, next) => {
   const resolvedFloors = Math.min(50, Math.max(1, Number(floors) || 1));
   const resolvedPlotWidth = (plotWidth != null && !isNaN(Number(plotWidth))) ? Math.max(0, Number(plotWidth)) : undefined;
   const resolvedPlotLength = (plotLength != null && !isNaN(Number(plotLength))) ? Math.max(0, Number(plotLength)) : undefined;
+  const resolvedBuiltArea = (builtArea != null && !isNaN(Number(builtArea))) ? Math.max(0, Number(builtArea)) : undefined;
   const resolvedBudget = (budget != null && !isNaN(Number(budget))) ? Math.max(0, Number(budget)) : undefined;
   const resolvedDesc = description ? String(description).trim().slice(0, 4000) : undefined;
 
@@ -93,6 +95,7 @@ const createProject = asyncHandler(async (req, res, next) => {
       location: location ? String(location).trim() : undefined,
       plotWidth: resolvedPlotWidth,
       plotLength: resolvedPlotLength,
+      builtArea: resolvedBuiltArea,
       budget: resolvedBudget,
       floors: resolvedFloors,
       houseStyle: resolvedStyle,
@@ -172,7 +175,7 @@ const updateProject = asyncHandler(async (req, res, next) => {
   }
 
   const allowedFields = [
-    'projectName', 'location', 'plotWidth', 'plotLength',
+    'projectName', 'location', 'plotWidth', 'plotLength', 'builtArea',
     'budget', 'floors', 'houseStyle', 'description', 'status', 'tags', 'thumbnail',
   ];
 

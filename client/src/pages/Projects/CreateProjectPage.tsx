@@ -49,6 +49,7 @@ interface FormState {
   bathrooms: number
   plotWidth: number
   plotLength: number
+  builtArea: number
   location: string
   budget: number
 }
@@ -56,7 +57,7 @@ interface FormState {
 const defaultForm: FormState = {
   projectName: '', description: '', houseType: 'residential', style: 'modern',
   floors: 1, bedrooms: 3, bathrooms: 2, plotWidth: 30, plotLength: 40,
-  location: '', budget: 2500000,
+  builtArea: 0, location: '', budget: 2500000,
 }
 
 export default function CreateProjectPage() {
@@ -151,6 +152,7 @@ export default function CreateProjectPage() {
         budget: form.budget,
       }
       if (boundary) payload.boundary = boundary
+      if (form.builtArea > 0) payload.builtArea = form.builtArea
       const res = await api.post('/projects', payload)
       return res.data.project
     },
@@ -320,11 +322,23 @@ export default function CreateProjectPage() {
               </Grid>
             </Grid>
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-                Plot Area: {(form.plotWidth * form.plotLength).toLocaleString()} sq ft ({form.plotWidth}ft × {form.plotLength}ft)
-                {boundary ? ` · Mapped: ${boundary.area.toFixed(1)} m²` : ''}
+              <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                Plot Area: {boundary
+                  ? `${boundary.area.toFixed(1)} m² (from map)`
+                  : `${(form.plotWidth * form.plotLength).toLocaleString()} sq ft (${form.plotWidth}×${form.plotLength} ft)`}
               </Typography>
             </Box>
+
+            <TextField
+              label="Built Area (m²)"
+              type="number"
+              value={form.builtArea || ''}
+              onChange={(e) => set('builtArea', Number(e.target.value))}
+              helperText="Total built-up area across all floors — shown as green overlay on map"
+              fullWidth
+              inputProps={{ min: 0 }}
+              placeholder={boundary ? `e.g. ${(boundary.area * 0.6).toFixed(0)}` : 'e.g. 150'}
+            />
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
                 Budget: ₹{form.budget.toLocaleString('en-IN')}

@@ -29,6 +29,12 @@ export interface ProjectTags {
   color: string
 }
 
+export interface ProjectBoundary {
+  corners: [number, number][]
+  area: number
+  perimeter: number
+}
+
 export interface Project {
   id: string
   _id: string
@@ -64,6 +70,7 @@ export interface Project {
   completionPercentage: number
   createdAt: string
   updatedAt: string
+  boundary?: ProjectBoundary | null
 }
 
 export interface ProjectTag {

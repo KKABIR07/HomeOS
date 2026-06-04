@@ -124,6 +124,7 @@ export default function SiteIntelligencePage() {
                 label={project.projectName || project.title}
                 height={440}
                 boundary={savedBoundary}
+                builtArea={project.builtArea}
               />
 
               <Grid container spacing={2} sx={{ mt: 2 }}>

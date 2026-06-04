@@ -41,6 +41,10 @@ const projectSchema = new mongoose.Schema(
       type: Number,
       min: [0, 'Plot length must be positive'],
     },
+    builtArea: {
+      type: Number,
+      min: [0, 'Built area must be positive'],
+    },
     budget: {
       type: Number,
       min: [0, 'Budget must be positive'],
