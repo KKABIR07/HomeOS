@@ -14,6 +14,7 @@ export interface SoilData {
   soilType: string
   foundationSuitability: string
   drainageRating: string
+  isFallback?: boolean
 }
 
 function classifySoil(clay: number, sand: number, silt: number): string {
@@ -38,6 +39,74 @@ function getDrainageRating(sand: number, clay: number): string {
   return 'Moderately drained'
 }
 
+function buildSoilData(clay: number, sand: number, silt: number, ph: number, soc: number, nitrogen: number, bd: number, isFallback = false): SoilData {
+  return {
+    properties: [
+      { name: 'clay', label: 'Clay Content', unit: '%', value: clay, depth: '0–5 cm' },
+      { name: 'sand', label: 'Sand Content', unit: '%', value: sand, depth: '0–5 cm' },
+      { name: 'silt', label: 'Silt Content', unit: '%', value: silt, depth: '0–5 cm' },
+      { name: 'phh2o', label: 'Soil pH', unit: '', value: ph, depth: '0–5 cm' },
+      { name: 'soc', label: 'Organic Carbon', unit: 'g/kg', value: soc, depth: '0–5 cm' },
+      { name: 'nitrogen', label: 'Nitrogen', unit: 'cg/kg', value: nitrogen, depth: '0–5 cm' },
+      { name: 'bdod', label: 'Bulk Density', unit: 'kg/dm³', value: bd, depth: '0–5 cm' },
+    ],
+    soilType: classifySoil(clay, sand, silt),
+    foundationSuitability: getFoundationSuitability(clay, sand),
+    drainageRating: getDrainageRating(sand, clay),
+    isFallback,
+  }
+}
+
+const FALLBACK_DATA = buildSoilData(25, 40, 35, 6.5, 10, 1.5, 1.3, true)
+
+async function fetchWithRetry(lat: number, lng: number, signal: AbortSignal, attempts = 3): Promise<SoilData> {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await axios.get('https://rest.isric.org/soilgrids/v2.0/properties/query', {
+        params: {
+          lon: lng,
+          lat,
+          property: ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen', 'bdod'],
+          depth: '0-5cm',
+          value: 'mean',
+        },
+        signal,
+        timeout: 15000,
+      })
+
+      const layers = res.data?.properties?.layers ?? []
+      const extract = (name: string): number | null => {
+        const layer = layers.find((l: any) => l.name === name)
+        const raw = layer?.depths?.[0]?.values?.mean
+        if (raw == null) return null
+        if (['clay', 'sand', 'silt'].includes(name)) return raw / 10
+        if (name === 'phh2o') return raw / 10
+        if (name === 'bdod') return raw / 100
+        return raw / 100
+      }
+
+      return buildSoilData(
+        extract('clay') ?? 25,
+        extract('sand') ?? 40,
+        extract('silt') ?? 35,
+        extract('phh2o') ?? 6.5,
+        extract('soc') ?? 10,
+        extract('nitrogen') ?? 1.5,
+        extract('bdod') ?? 1.3,
+      )
+    } catch (err) {
+      if (axios.isCancel(err)) throw err
+      const status = axios.isAxiosError(err) ? err.response?.status : null
+      // Only retry on 503/502/504; bail immediately on 4xx
+      const shouldRetry = !status || status >= 500
+      if (!shouldRetry || i === attempts - 1) throw err
+      // Exponential back-off: 2s, 4s
+      await new Promise((r) => setTimeout(r, 2000 * (i + 1)))
+    }
+  }
+  throw new Error('All retries exhausted')
+}
+
 export function useSoilData(lat?: number, lng?: number) {
   const [data, setData] = useState<SoilData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -49,55 +118,15 @@ export function useSoilData(lat?: number, lng?: number) {
     setError(null)
 
     const controller = new AbortController()
-    axios
-      .get('https://rest.isric.org/soilgrids/v2.0/properties/query', {
-        params: {
-          lon: lng,
-          lat: lat,
-          property: ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen', 'bdod'],
-          depth: '0-5cm',
-          value: 'mean',
-        },
-        signal: controller.signal,
-        timeout: 15000,
-      })
-      .then((res) => {
-        const layers = res.data?.properties?.layers ?? []
-        const extract = (name: string): number | null => {
-          const layer = layers.find((l: any) => l.name === name)
-          const raw = layer?.depths?.[0]?.values?.mean
-          if (raw == null) return null
-          // SoilGrids values are scaled: clay/sand/silt ×10 = g/kg, divide by 10 for %
-          if (['clay', 'sand', 'silt'].includes(name)) return raw / 10
-          if (name === 'phh2o') return raw / 10
-          if (name === 'bdod') return raw / 100
-          return raw / 100
-        }
 
-        const clay = extract('clay') ?? 25
-        const sand = extract('sand') ?? 40
-        const silt = extract('silt') ?? 35
-        const ph = extract('phh2o') ?? 6.5
-        const soc = extract('soc') ?? 10
-        const nitrogen = extract('nitrogen') ?? 1.5
-        const bd = extract('bdod') ?? 1.3
-
-        setData({
-          properties: [
-            { name: 'clay', label: 'Clay Content', unit: '%', value: clay, depth: '0–5 cm' },
-            { name: 'sand', label: 'Sand Content', unit: '%', value: sand, depth: '0–5 cm' },
-            { name: 'silt', label: 'Silt Content', unit: '%', value: silt, depth: '0–5 cm' },
-            { name: 'phh2o', label: 'Soil pH', unit: '', value: ph, depth: '0–5 cm' },
-            { name: 'soc', label: 'Organic Carbon', unit: 'g/kg', value: soc, depth: '0–5 cm' },
-            { name: 'nitrogen', label: 'Nitrogen', unit: 'cg/kg', value: nitrogen, depth: '0–5 cm' },
-            { name: 'bdod', label: 'Bulk Density', unit: 'kg/dm³', value: bd, depth: '0–5 cm' },
-          ],
-          soilType: classifySoil(clay, sand, silt),
-          foundationSuitability: getFoundationSuitability(clay, sand),
-          drainageRating: getDrainageRating(sand, clay),
-        })
+    fetchWithRetry(lat, lng, controller.signal)
+      .then((result) => setData(result))
+      .catch((err) => {
+        if (axios.isCancel(err)) return
+        // Fall back to estimated defaults so the UI always shows something
+        setData(FALLBACK_DATA)
+        setError('Soil data service unavailable — showing estimated values')
       })
-      .catch((err) => { if (!axios.isCancel(err)) setError('Soil data unavailable') })
       .finally(() => setLoading(false))
 
     return () => controller.abort()

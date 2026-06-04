@@ -122,7 +122,7 @@ const getUsers = asyncHandler(async (req, res) => {
  * @access  Private (admin)
  */
 const updateUser = asyncHandler(async (req, res, next) => {
-  const { role, isActive, isEmailVerified } = req.body;
+  const { role, isActive, isEmailVerified, subscriptionPlan } = req.body;
 
   const updateData = {};
   if (role) {
@@ -134,6 +134,11 @@ const updateUser = asyncHandler(async (req, res, next) => {
   }
   if (isActive !== undefined) updateData.isActive = Boolean(isActive);
   if (isEmailVerified !== undefined) updateData.isEmailVerified = Boolean(isEmailVerified);
+  if (subscriptionPlan) {
+    const allowedPlans = ['free', 'pro', 'enterprise'];
+    if (!allowedPlans.includes(subscriptionPlan)) return next(new AppError('Invalid plan', 400));
+    updateData['subscription.plan'] = subscriptionPlan;
+  }
 
   const user = await User.findByIdAndUpdate(req.params.id, updateData, {
     new: true,
@@ -303,9 +308,31 @@ const toggleReviewVisibility = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @desc    Get single user full detail + their projects
+ * @route   GET /api/admin/users/:id
+ * @access  Private (admin)
+ */
+const getUserDetail = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id)
+    .select('-password -emailVerificationToken -resetPasswordToken -resetPasswordExpires');
+  if (!user) return next(new AppError('User not found', 404));
+
+  const [projects, projectCount] = await Promise.all([
+    Project.find({ owner: req.params.id })
+      .select('projectName houseStyle status createdAt plotArea floors location builtArea budget currency')
+      .sort('-createdAt')
+      .limit(20),
+    Project.countDocuments({ owner: req.params.id }),
+  ]);
+
+  res.status(200).json({ success: true, user, projects, projectCount });
+});
+
 module.exports = {
   getStats,
   getUsers,
+  getUserDetail,
   updateUser,
   deleteUser,
   getAllProjects,

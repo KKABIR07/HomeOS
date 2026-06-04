@@ -13,6 +13,7 @@ import { useProjectGeo } from '../../hooks/useProjectGeo'
 import { useWeather } from '../../hooks/useWeather'
 import { useSoilData } from '../../hooks/useSoilData'
 import ProjectMap from '../../components/ui/ProjectMap'
+import PropertyBoundaryMap from '../../components/ui/PropertyBoundaryMap'
 
 const fade = { hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }
 
@@ -47,7 +48,7 @@ export default function SiteIntelligencePage() {
   const { data: project, isLoading } = useProject(id ?? '')
   const { geo, loading: geoLoading, error: geoError } = useProjectGeo(project?.location)
   const { data: weather, loading: wLoading } = useWeather(geo?.lat, geo?.lng)
-  const { data: soil, loading: sLoading } = useSoilData(geo?.lat, geo?.lng)
+  const { data: soil, loading: sLoading, error: soilError } = useSoilData(geo?.lat, geo?.lng)
 
   if (isLoading) return <Loader msg="Loading project…" />
   if (!project) return <Alert severity="error">Project not found.</Alert>
@@ -62,7 +63,7 @@ export default function SiteIntelligencePage() {
       {!loc && <Alert severity="warning" sx={{ mb: 3 }}>No location set. Edit the project to add a location and unlock geo-based analysis.</Alert>}
 
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, borderBottom: '1px solid', borderColor: 'divider' }}>
-        {['📍 Site Map', '🌤 Weather', '🌱 Soil', '📊 Summary'].map((l, i) => <Tab key={i} label={l} />)}
+        {['📍 Site Map', '🌤 Weather', '🌱 Soil', '📐 Boundary', '📊 Summary'].map((l, i) => <Tab key={i} label={l} />)}
       </Tabs>
 
       {tab === 0 && (
@@ -125,7 +126,9 @@ export default function SiteIntelligencePage() {
         <Box component={motion.div} variants={fade} initial="hidden" animate="visible">
           {!loc && <Alert severity="info">Add a project location to load soil data.</Alert>}
           {loc && (sLoading || geoLoading) && <Loader msg="Fetching SoilGrids data…" />}
-          {loc && !sLoading && !geoLoading && !soil && <Alert severity="warning">Soil data unavailable for this location.</Alert>}
+          {loc && !sLoading && !geoLoading && soilError && (
+            <Alert severity="warning" sx={{ mb: 2 }}>SoilGrids service is temporarily unavailable — showing estimated values.</Alert>
+          )}
           {soil && (
             <>
               <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -173,6 +176,18 @@ export default function SiteIntelligencePage() {
       )}
 
       {tab === 3 && (
+        <Box component={motion.div} variants={fade} initial="hidden" animate="visible">
+          <Box sx={{ mb: 2.5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800 }}>Property Boundary Mapping</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Draw your property outline on the map or enter corner coordinates manually to calculate area and perimeter.
+            </Typography>
+          </Box>
+          <PropertyBoundaryMap defaultCenter={geo ? [geo.lat, geo.lng] : undefined} />
+        </Box>
+      )}
+
+      {tab === 4 && (
         <Box component={motion.div} variants={fade} initial="hidden" animate="visible">
           <Grid container spacing={2.5}>
             <Grid item xs={12} md={6}>

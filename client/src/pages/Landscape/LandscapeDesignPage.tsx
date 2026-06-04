@@ -41,7 +41,7 @@ export default function LandscapeDesignPage() {
   const { data: project, isLoading } = useProject(id ?? '')
   const { geo, loading: geoLoading } = useProjectGeo(project?.location)
   const { data: weather, loading: wLoading } = useWeather(geo?.lat, geo?.lng)
-  const { data: soil, loading: sLoading } = useSoilData(geo?.lat, geo?.lng)
+  const { data: soil, loading: sLoading, error: soilError } = useSoilData(geo?.lat, geo?.lng)
 
   const plants = useMemo(() => getPlantSuggestions(weather, soil), [weather, soil])
 
@@ -123,6 +123,9 @@ export default function LandscapeDesignPage() {
         <Box component={motion.div} variants={fade} initial="hidden" animate="visible">
           {!project.location && <Alert severity="info">Add a location to load soil data for landscaping.</Alert>}
           {project.location && (sLoading || geoLoading) && <Loader msg="Fetching SoilGrids data…" />}
+          {project.location && !sLoading && !geoLoading && soilError && (
+            <Alert severity="warning" sx={{ mb: 2 }}>SoilGrids service is temporarily unavailable — showing estimated values.</Alert>
+          )}
           {soil && (
             <Grid container spacing={2.5}>
               <Grid item xs={12} md={4}>
@@ -155,7 +158,6 @@ export default function LandscapeDesignPage() {
               </Grid>
             </Grid>
           )}
-          {!soil && !sLoading && project.location && <Alert severity="warning">Soil data unavailable for this location.</Alert>}
         </Box>
       )}
 
