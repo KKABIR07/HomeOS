@@ -5,6 +5,7 @@ import AuthLayout from '../components/shared/Layout/AuthLayout'
 import LoadingScreen from '../components/shared/LoadingScreen'
 
 import LandingPage from '../pages/Landing/LandingPage'
+import AboutPage from '../pages/About/AboutPage'
 import LoginPage from '../pages/Auth/LoginPage'
 import RegisterPage from '../pages/Auth/RegisterPage'
 import ForgotPasswordPage from '../pages/Auth/ForgotPasswordPage'
@@ -63,6 +64,7 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<AboutPage />} />
 
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />

@@ -534,20 +534,141 @@ export default function LandingPage() {
       </Box>
 
       {/* Footer */}
-      <Box sx={{ borderTop: '1px solid rgba(108,99,255,0.1)', py: 4 }}>
+      <Box sx={{ borderTop: '1px solid rgba(108,99,255,0.12)', background: 'rgba(8,10,14,0.8)', pt: 8, pb: 5 }}>
         <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.4)' }}>
-              © 2024 HouseOS. All rights reserved.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 3 }}>
-              {['Privacy', 'Terms', 'Support', 'Blog'].map((link) => (
-                <Typography
-                  key={link}
-                  variant="body2"
-                  sx={{ color: 'rgba(255,255,255,0.4)', cursor: 'pointer', '&:hover': { color: '#6C63FF' } }}
+          <Grid container spacing={4} sx={{ mb: 6 }}>
+            {/* Brand */}
+            <Grid item xs={12} md={3}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                <Box
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #6C63FF, #FF6584)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
-                  {link}
+                  <HomeWorkIcon sx={{ color: 'white', fontSize: 20 }} />
+                </Box>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 800,
+                    background: 'linear-gradient(135deg, #6C63FF, #FF6584)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  HouseOS
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.4)', lineHeight: 1.8, maxWidth: 220 }}>
+                AI-powered architecture tools for homeowners, builders, and architects worldwide.
+              </Typography>
+            </Grid>
+
+            {/* Product */}
+            <Grid item xs={6} sm={3} md={2}>
+              <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.55)', fontWeight: 700, letterSpacing: 1.5, fontSize: '0.7rem', display: 'block', mb: 1.5 }}>
+                Product
+              </Typography>
+              {[
+                { label: 'AI Floor Plans', path: '/register' },
+                { label: '3D Viewer', path: '/register' },
+                { label: 'Cost Estimator', path: '/register' },
+                { label: 'Interior Studio', path: '/register' },
+                { label: 'Marketplace', path: '/register' },
+                { label: 'Smart Home', path: '/register' },
+              ].map((l) => (
+                <Typography key={l.label} variant="body2" onClick={() => navigate(l.path)}
+                  sx={{ color: 'rgba(255,255,255,0.4)', cursor: 'pointer', mb: 0.8, fontSize: '0.85rem', '&:hover': { color: '#8B85FF' } }}>
+                  {l.label}
+                </Typography>
+              ))}
+            </Grid>
+
+            {/* Company */}
+            <Grid item xs={6} sm={3} md={2}>
+              <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.55)', fontWeight: 700, letterSpacing: 1.5, fontSize: '0.7rem', display: 'block', mb: 1.5 }}>
+                Company
+              </Typography>
+              {[
+                { label: 'About Us', path: '/about' },
+                { label: 'Our Team', path: '/about#team' },
+                { label: 'Careers', path: '#' },
+                { label: 'Press Kit', path: '#' },
+                { label: 'Partners', path: '#' },
+                { label: 'Contact', path: '#' },
+              ].map((l) => (
+                <Typography key={l.label} variant="body2" onClick={() => navigate(l.path)}
+                  sx={{ color: 'rgba(255,255,255,0.4)', cursor: 'pointer', mb: 0.8, fontSize: '0.85rem', '&:hover': { color: '#8B85FF' } }}>
+                  {l.label}
+                </Typography>
+              ))}
+            </Grid>
+
+            {/* Resources */}
+            <Grid item xs={6} sm={3} md={2}>
+              <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.55)', fontWeight: 700, letterSpacing: 1.5, fontSize: '0.7rem', display: 'block', mb: 1.5 }}>
+                Resources
+              </Typography>
+              {[
+                { label: 'Documentation', path: '#' },
+                { label: 'Blog', path: '#' },
+                { label: 'Tutorials', path: '#' },
+                { label: 'Community', path: '/register' },
+                { label: 'Changelog', path: '#' },
+                { label: 'API Docs', path: '#' },
+              ].map((l) => (
+                <Typography key={l.label} variant="body2" onClick={() => navigate(l.path)}
+                  sx={{ color: 'rgba(255,255,255,0.4)', cursor: 'pointer', mb: 0.8, fontSize: '0.85rem', '&:hover': { color: '#8B85FF' } }}>
+                  {l.label}
+                </Typography>
+              ))}
+            </Grid>
+
+            {/* Legal */}
+            <Grid item xs={6} sm={3} md={2}>
+              <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.55)', fontWeight: 700, letterSpacing: 1.5, fontSize: '0.7rem', display: 'block', mb: 1.5 }}>
+                Legal
+              </Typography>
+              {[
+                { label: 'Privacy Policy', path: '#' },
+                { label: 'Terms of Service', path: '#' },
+                { label: 'Cookie Policy', path: '#' },
+                { label: 'GDPR', path: '#' },
+                { label: 'Security', path: '#' },
+              ].map((l) => (
+                <Typography key={l.label} variant="body2" onClick={() => navigate(l.path)}
+                  sx={{ color: 'rgba(255,255,255,0.4)', cursor: 'pointer', mb: 0.8, fontSize: '0.85rem', '&:hover': { color: '#8B85FF' } }}>
+                  {l.label}
+                </Typography>
+              ))}
+            </Grid>
+          </Grid>
+
+          <Box sx={{ borderTop: '1px solid rgba(108,99,255,0.08)', pt: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.8rem' }}>
+              © 2026 HouseOS · All rights reserved · Built with ♥ by KKABIR07
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {[
+                { label: 'Home', path: '/' },
+                { label: 'About', path: '/about' },
+                { label: 'Support', path: '#' },
+                { label: 'Status', path: '#' },
+              ].map((link) => (
+                <Typography
+                  key={link.label}
+                  variant="body2"
+                  onClick={() => navigate(link.path)}
+                  sx={{ color: 'rgba(255,255,255,0.35)', cursor: 'pointer', fontSize: '0.82rem', '&:hover': { color: '#6C63FF' } }}
+                >
+                  {link.label}
                 </Typography>
               ))}
             </Box>
